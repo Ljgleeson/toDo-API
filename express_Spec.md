@@ -34,6 +34,7 @@ Sources:
 ```
 ### Testability
 `Please see express_Testing branch for proof of concept.`
+
 Similar to Node.js, there are many defined practices for conducting test in Express apps. There are various automated testing tools/frameworks like Mocha, Jest, Ava, and Postman. Combining these with libraries like Chai, Supertest, and Sinon, allow developers to automate APIs and middleware test of an Express app. 
 ```
 Sources:
@@ -43,6 +44,7 @@ Sources:
 
 ### Performance
 `Please see express_Performance branch for proof of concept.`
+
 Being a simple framework, Express is easy to configure and customize for faster development time. On top of this, Node.js interprets the JavaScript code through Googles v8 engine that is complied into machine code, which helps with efficiency and performance. There are also some practices that Express has that improves performance and reliability. Setting the NODE_ENV environment variable to production will make your Express.js application run three times faster. Express also allows for unified logs across the application which structures and collects logs in a central location. 
 ```
 Sources:
@@ -53,6 +55,7 @@ Sources:
 
 ### Can it apply the SOLID Princples
 `Please see the express_SOLID.js branch for proof of concept.`
+
 JavaScript is a mulit-paradigm programming language that can apply the SOLID princples. On top of this, the unopinionated structure of express makes it capable of following the SOLID principles. There are multiple guides to assist developers with following the SOLID principles with Node specifically using the Express framework.
 ```
 Sources:
