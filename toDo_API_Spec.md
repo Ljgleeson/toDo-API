@@ -1,81 +1,179 @@
-# ToDo API
+# Task API
 ---
-This is a proposal for my API Spec 
+This is a proposal for my API Spec for the Task manager.
 ## End Points
 ---
 
-### Create ToDo
-`POST .com/ToDo`
+### Create Task
+`POST /tasks`
 request body: 
 ```
 {
-    "name": String
-    "dueDate": String
+    "name": "String",
+    "createdAt: "Datetime",
+    "dueDate": "Date",
     "completed": Bool
 }
 ```
+
+response code: 
+
+    201 - Created
 
 response body:
 ```
-response code: 201 - Created
 {
-    "id": Int
-    "name": String
-    "dueDate": String
+    "id": "GUID",
+    "name": "String",
+    "createdAt: "Datetime",
+    "dueDate": "Date",
     "completed": Bool
 }
 ```
+response code: 
 
-### Fetch all ToDo 
-`GET .com/ToDo/`
+     400 - Bad request
+
 response body:
 ```
-response code: 200 - OK
 {
-    "id": Int
-    "name": String
-    "dueDate": String
-    "completed": Bool
+    "errorMessage": "String"
 }
 ```
+### Fetch all Tasks 
+`GET /tasks`
+URL parameters:
 
-### Fetch a ToDo
-`GET .com/ToDo/{id}`
+    Name: completed
+    Possible Values: true, false
+    Required: No
+    Description: If present, filters the results.  If completed=true, then only tasks that have been completed will be returned; if completed=false, then only tasks that have not been completed will return
+
+    Name: sort_field
+    Possible Values: name, dueDate, createdDate
+    Required: No
+    Description: If present, defines the sort field; must be combined with the sort_direction URL param
+
+    Name: sort_direction
+    Possible Values: asc, desc
+    Required: No
+    Description: If present, defines the sort direction; must be combined with the sort_field URL param
+
+response code: 
+
+    200 - OK
+
 response body:
 ```
-response code: 200 - OK
+{ 
+   [{
+        "id": "GUID",
+        "name": "String",
+        "createdAt: "Datetime",
+        "dueDate": "Date",
+        "completed": Bool
+    },
+    {
+        "id": "GUID",
+        "name": "String",
+        "createdAt: "Datetime",
+        "dueDate": "Date",
+        "completed": Bool
+    },
+    ... ]
+}
+```
+response code:
+
+    400 - Bad Syntax
+
+response body:
+```
 {
-    "name": String
-    "dueDate": String
-    "completed": Bool
+    "errorMessage": "String"
 }
 ```
 
-### Update a ToDo 
-`PUT .com/ToDo/{id}`
+### Fetch a task
+`GET /tasks/{id}`
+response code: 
+
+    200 - OK 
+
+response body:
+```
+{
+    "id": "GUID",
+    "name": "String",
+    "createdAt: "Datetime", 
+    "dueDate": "Date",
+    "completed": Bool
+}
+```
+response code:
+    
+    404 - Not found
+
+response body:
+```
+{
+    "errorMessage": "String"
+}
+```
+
+
+### Update a Task 
+`PUT /tasks/{id}`
 request body:
 ```
 {
-    "name": String
-    "dueDate": newString
+    "id": "GUID",
+    "name": "String",
+    "createdAt: "Datetime",
+    "dueDate": "Date",
     "completed": Bool
 }
 ```
 
+response code: 
+
+    200 - OK
+
 response body:
 ```
-response code: 200 - OK
 {
-    "id": Int
-    "name": String
-    "dueDate": newString
+    "id": "GUID",
+    "name": "String",
+    "createdAt: "Datetime", 
+    "dueDate": "Date",
     "completed": Bool
 }
 ```
 
-### Delete a ToDo 
-`DELETE .com/ToDo/{id}`
+response code:
+    
+    4xx: Client error status
+
 response body:
 ```
-response code: 200 - OK
+{
+    "errorMessage": "String"
+}
 ```
+
+### Delete a Task 
+`DELETE /tasks/{id}`
+response code: 
+    
+    200 - OK
+
+response body:
+```
+{
+    "id": "GUID"
+}
+```
+
+response code:
+
+    404 - Not found
