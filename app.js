@@ -6,6 +6,8 @@ async and await enable asynchronous, promise based behavior to be written in a c
 avoiding the need to explicity configure promise chains 
 promise: object representing the eventual completion or failure of an asynchronous operation
 */
+
+//now that typescript set up, this is doing nothing. 
 const init = async () => {
     //connection details about server
     const server = Hapi.server({

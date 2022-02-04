@@ -1,17 +1,18 @@
+
 {
-    "compilerOptions": {
-      "outDir": "./dist",
-      "allowJs": false,
-      "target": "es6",
-      "sourceMap": true,
-      "module": "commonjs",
-      "moduleResolution": "node",
-    },
-    "include": [
-      "./src/**/*",
-    ],
-    "exclude": [
-      "node_modules",
-      "toDo_API_Spec.md"
-    ],
-  }
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": false,
+    "target": "es6",
+    "sourceMap": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+  },
+  "include": [
+    "./src/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+    "toDo_API_Spec.md"
+  ],
+}
