@@ -8,4 +8,3 @@ export interface baseTask {
 export interface Task extends baseTask {
     id: number;
 }
-
