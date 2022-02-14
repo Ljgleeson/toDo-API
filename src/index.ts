@@ -1,8 +1,5 @@
 import { Server, Request, ResponseToolkit } from "@hapi/hapi";
-import { getRoutes } from "../routes/routes"
-
-export let server: Server
-
+import { routes } from "../routes/routes"
 
 const init = async () => {
     const server: Server = new Server({
@@ -10,11 +7,10 @@ const init = async () => {
         host: 'localhost'
     });
 
-
-    getRoutes()
+    server.route(routes)
 
     await server.start();
-    console.log('I am in index.ts! Server running on %s', server.info.uri);
+    console.log('Server is now running on %s', server.info.uri);
 };
 
 process.on('unhandledRejection', (err) => {

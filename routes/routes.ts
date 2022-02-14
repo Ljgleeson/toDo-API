@@ -1,19 +1,15 @@
 //import { Server, Request, ResponseToolkit } from "@hapi/hapi";
 import { set_tasks } from "../models/models";
 import { Task } from "../models/task_interface"
-import { server } from "../src/index";
 
-export function getRoutes() {
 
-        //created global counter for new task to identify correct id value
-        let id_val = set_tasks.length
-        
-       //create a new task
-       server.route({
+export const routes = [
+    {  
         method: 'POST',
         path: '/tasks',
         handler: (request, h) => {
 
+            let id_val = set_tasks.length
             //created request_data as interface Task with request data
             const request_data = request.payload as Task
             const new_id = id_val;
@@ -30,86 +26,67 @@ export function getRoutes() {
             id_val ++
             return h.response(new_task);
         }
-    });
-
-    //fetch all tasks in asc order
-    server.route({
+    },
+    {
         method: 'GET',
         path: '/tasks',
         handler: (request, h) => {
-
-            set_tasks.sort((task1, task2) => task1.id - task2.id)
             return h.response(set_tasks)
         }
-    });
-
-    //fetch all tasks depending on if they're true or false
-    server.route({
-        method: 'GET',
-        path: '/tasks/filter{complete?}',
-        handler: (request, h) => {
-
-            //responsed with task with completed status = true
-            if(request.params.complete == "true"){
-                const completed_tasks = set_tasks.some(task => true === task.completed)
-                if(completed_tasks){
-                    return h.response(set_tasks.filter(task => true === task.completed))
-                }else{
-                    return "No task found with completed status being true"
-                }          
-            }
-            //respond with task with completed status = false
-            else if (request.params.complete == "false"){
-                const incomplete_task = set_tasks.some(task => false === task.completed)
-                if(incomplete_task){
-                    return h.response(set_tasks.filter(task => false === task.completed))
-                }else{
-                    return "No task found with completed status being true"
-                } 
-            }
-            else{
-                return "Input received wasnt 'true' or 'false' "
-            }      
-        }
-    });
-
-    //get method that sorts by specified val: Descending name, createdDate, dueDate, or ID
-    server.route({
+    },
+    {
         method: 'GET',
         path: '/tasks/sortBy{val?}',
         handler: (request, h) => {
             //sorts by having names appear in alphabetical order
             if(request.params.val == 'name'){
-                var name_sort = set_tasks
+                var name_sort  = [ ...set_tasks]
                 name_sort.sort((task1, task2) => task1.name < task2.name ? -1 : 1)
                 return h.response(name_sort)
             }
             //sorts by creation date
-            if(request.params.val == 'createdAt'){
-                var create_sort = set_tasks
+            else if(request.params.val == 'createdAt'){
+                var create_sort  = [ ...set_tasks]
                 create_sort.sort((task1, task2) => task1.createdAt < task2.createdAt ? -1 : 1)
                 return h.response(create_sort)
             }
             //sorts by due date with
-            if(request.params.val == 'dueDate'){
-                var due_date_sort = set_tasks
+            else if(request.params.val == 'dueDate'){
+                var due_date_sort  = [ ...set_tasks]
                 due_date_sort.sort((task1, task2) => task1.dueDate < task2.dueDate ? -1 : 1)
                 return h.response(due_date_sort)
             }
             //sort by descending order for task (default is ascending order as you scroll down for ids)
             //descending starts with highest value
-            if(request.params.val == "id"){
-                var id_sort = set_tasks
+            else if(request.params.val == "id"){
+                var id_sort  = [ ...set_tasks]
                 id_sort.sort((task1, task2) => task2.id - task1.id)
                 return h.response(id_sort)
             }
-
-            return "Input either no received or incorrect value"
+            //sort by incomplete tasks
+            else if( request.params.val == "false" ){
+                const false_task = set_tasks.some(task => false === task.completed)
+                if(false_task){
+                    return h.response(set_tasks.filter(task => false === task.completed))
+                }else{
+                    return "No task found with completed status being false"
+                }          
+            }
+            //sort by completed task
+            else if(request.params.val == "true"){
+                const true_task = set_tasks.some(task => true === task.completed)
+                if(true_task){
+                    return h.response(set_tasks.filter(task => true === task.completed))
+                }else{
+                    return "No task found with completed status being true"
+                }          
+            }
+             else {
+                 return "Input either not received or incorrect value"
+            }
         }
-    });
-    
-    //fetch a single task specified by id 
-    server.route({
+    },
+    {
         method: 'GET',
         path: '/tasks{id}',
         handler: (request, h) => {
@@ -120,14 +97,12 @@ export function getRoutes() {
                 return h.response(set_tasks.filter(task => task.id === parseInt(request.params.id)))
             }else{
                 //fail return statement
-                 return "No task with that ID found"
+                return "No task with that ID found"
             }
 
         }
-    });
-
-    //update a specified task specified by the id 
-    server.route({
+    },
+    {
         method: 'PUT',
         path: '/tasks{id}',
         handler: (request, h) => {
@@ -148,10 +123,8 @@ export function getRoutes() {
             }
 
         }
-    });
-
-    //remove a specified task by id 
-    server.route({
+    },
+    {
         method: 'DELETE',
         path: '/tasks{id}',
         handler: (request, h) => {
@@ -166,5 +139,6 @@ export function getRoutes() {
             //return statement if failure occurs
             return "No task found to delete with the ID specified"
         }
-    });
-}
+    }
+]
+
