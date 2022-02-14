@@ -1,5 +1,5 @@
 //In-Memory Storage 
-export const set_tasks = [
+export const setTasks = [
     {
         id: 1,
         name: 'Have a sandwich',
