@@ -1,0 +1,3 @@
+SELECT * FROM todo ORDER BY dueDate ASC;
+SELECT * FROM todo ORDER BY title ASC;
+SELECT * FROM todo ORDER BY createdAt ASC;
