@@ -1,21 +1,25 @@
 //In-Memory Storage 
+
+import { v4 as uuid } from 'uuid';
+
+
 export const setTasks = [
     {
-        id: 1,
+        id: uuid(),
         name: 'Have a sandwich',
         createdAt: Date().toString(),
         dueDate: Date().toString(),
         completed: false
      },
     {
-        id: 2,
+        id: uuid(),
         name: 'Go to the mall',
         createdAt: Date().toString(),
         dueDate: Date().toString(),
         completed: true
      },
     {
-        id: 3,
+        id: uuid(),
         name: 'Harvest some corn',
         createdAt: Date().toString(),
         dueDate: Date().toString(),
