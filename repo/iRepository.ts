@@ -32,10 +32,11 @@ class taskRepository implements IRepo<Task>  {
     }
 
     public getId(new_id){
-        if(this.task_list.find(({id}) => id === new_id)){
-            return this.task_list.find(({id}) => id === new_id)
+        const result = this.task_list.find(({id}) => id === new_id)
+        if(result){
+            return result
         }else{
-            return "No task with ID specified found "
+            return null
         }
     }
 
@@ -48,40 +49,36 @@ class taskRepository implements IRepo<Task>  {
         }else if (val == 'dueDate'){
             sort_list.sort((task1, task2) => task1.dueDate < task2.dueDate ? -1: 1)
         }else if (val == 'true'){
-            if(sort_list.some(task => true === task.completed)){
-                return sort_list.filter(task => true === task.completed)
-            }
+            return sort_list.filter(task => true === task.completed)
         }else if (val == 'false'){
-            if(sort_list.some(task => false === task.completed)){
-                 return sort_list.filter(task => false === task.completed)
-            }
+            return sort_list.filter(task => false === task.completed)
         }else{
-            return "Input received does not match sort specification"
+            return null
         }
         return sort_list 
     }
 
     public updateById(new_id, updated) {
-        if (this.task_list.find(({id}) => id === new_id)){
-            this.task_list.find(({id}) => id === new_id).name = updated.name
-            this.task_list.find(({id}) => id === new_id).createdAt = updated.createdAt
-            this.task_list.find(({id}) => id === new_id).dueDate = updated.dueDate
-            this.task_list.find(({id}) => id === new_id).completed = updated.completed
-            return this.task_list.find(({id}) => id === new_id)
+        const result = this.task_list.find(({id}) => id === new_id)
+        if (result){
+            result.name = updated.name
+            result.createdAt = updated.createdAt
+            result.dueDate = updated.dueDate
+            result.completed = updated.completed
+            return result
         }else{
-            return "No task found with ID specified"
+            return null
         }
     }
 
     public removeById(new_id) {
-        if (this.task_list.find(({id}) => id === new_id)){
-            var index = this.task_list.findIndex(({id}) => id === new_id)
+        var index = this.task_list.findIndex(({id}) => id === new_id)
+        if (index != -1){
             return this.task_list.splice(index, 1)
         }else{
-            return "No task found to delete with the ID specified"
+            return null
         }
     }
-
 }
 
 //export object to routes so can be used globally
