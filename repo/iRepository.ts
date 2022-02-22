@@ -1,18 +1,33 @@
 import { v4 as uuid } from 'uuid';
+const Sequelize = require('sequelize')
+
+const dbConnection = new Sequelize('mysql', 'root', 'supersecretpass', {
+    host: 'localhost',
+    port: 3306,
+    dialect: 'mysql'
+} )
+
+dbConnection.authenticate().then(() => {
+    console.log("Database connected")
+}).catch( () => {
+    console.log("Database couldnt connect")
+})
 
 //define Task data values and types
-interface Task {
+export interface Task {
     id: uuid;
-    name: string;
-    createdAt: string;
+    createdAt: Date;
+    title: string;
     dueDate: string;
     completed: boolean;
 }
-
+ 
 //generic repository interface
 interface IRepo<Task>{
-    add(T: Task)
+    create(T: Task)
+    getAll()
     getId(id: uuid)
+    getCompleted(val: string)
     sortBy(val: string)
     updateById(id: string, updated: Task)
     removeById(id: string)
@@ -21,61 +36,81 @@ interface IRepo<Task>{
 
 //implementation of generic repository interface 
 class taskRepository implements IRepo<Task>  {
-
-    //Not using a db yet so create local array to store vals
-    task_list: Task[] = []
     
-    public add(T){
-        T.payload.id = uuid()
-        this.task_list.push(T.payload)
-        return T.payload
+    async create(T: Task){
+        //Used ? for values as couldnt directly assign task values and then replaced them beneath
+        const [results, metadata] = await dbConnection.query(
+            'INSERT INTO tasks VALUES ( ?, ?, ?, ?, ?)', {
+                replacements: [T.id, T.createdAt, T.title, T.dueDate, T.completed]
+            } )
+        return results
     }
 
-    public getId(new_id){
-        const result = this.task_list.find(({id}) => id === new_id)
-        if(result){
-            return result
-        }else{
+    async getAll(){
+        try{
+            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks')
+            return results
+        } catch(err){
             return null
         }
     }
 
-    public sortBy(val) {
-        var sort_list = [ ...this.task_list]
-        if(val == 'name'){
-            sort_list.sort((task1, task2) => task1.name < task2.name ? -1: 1)
+    async getId(new_id){
+        try{
+            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks WHERE id = ?',{
+                replacements: [new_id]
+            })
+            return results
+        } catch(err){
+            return null
+        }
+    }
+
+    async getCompleted(val) {
+        try{
+            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks WHERE completed = ?',{
+                replacements: [val]
+            })
+            return results
+        } catch(err){
+            return null
+        }
+    }
+
+    //wasnt able to use '?' so used if/else cond to identify order by filter
+    async sortBy(val) {
+        if (val == 'title'){
+            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks ORDER BY title ASC')
+            return results
         }else if (val == 'createdAt'){
-            sort_list.sort((task1, task2) => task1.createdAt < task2.createdAt ? -1: 1)
+            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks ORDER BY createdAt ASC')
+            return results
         }else if (val == 'dueDate'){
-            sort_list.sort((task1, task2) => task1.dueDate < task2.dueDate ? -1: 1)
-        }else if (val == 'true'){
-            return sort_list.filter(task => true === task.completed)
-        }else if (val == 'false'){
-            return sort_list.filter(task => false === task.completed)
-        }else{
-            return null
-        }
-        return sort_list 
-    }
-
-    public updateById(new_id, updated) {
-        const result = this.task_list.find(({id}) => id === new_id)
-        if (result){
-            result.name = updated.name
-            result.createdAt = updated.createdAt
-            result.dueDate = updated.dueDate
-            result.completed = updated.completed
-            return result
+            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks ORDER BY dueDate ASC')
+            return results
         }else{
             return null
         }
     }
 
-    public removeById(new_id) {
-        var index = this.task_list.findIndex(({id}) => id === new_id)
-        if (index != -1){
-            return this.task_list.splice(index, 1)
-        }else{
+    async updateById(new_id, updated) {
+        try{
+            const [results, metadata] = await dbConnection.query('UPDATE tasks SET title = ?, dueDate = ?, completed = ? WHERE id = ?',{
+                replacements: [updated.title, updated.dueDate, updated.completed, new_id]
+            })
+            return results
+        } catch(err){
+            return null
+        }
+    }
+
+    async removeById(new_id) {
+        try{
+            const [results, metadata] = await dbConnection.query('DELETE FROM tasks WHERE id = ?',{
+                replacements: [new_id]
+            })
+            return results
+        } catch(err){
             return null
         }
     }

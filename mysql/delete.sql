@@ -1,1 +1,0 @@
-DELETE FROM todo WHERE task_id = "d2fc26a5-3f3a-490d-b5d0-c1281ab891cc";

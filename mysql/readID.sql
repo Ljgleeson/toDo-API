@@ -1,1 +1,0 @@
-SELECT * FROM todo WHERE task_id = "34a27c38-02ae-4482-9f24-ce9d909b00c8"
