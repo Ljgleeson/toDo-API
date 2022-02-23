@@ -1,3 +1,5 @@
+import { type } from 'os';
+import { DataTypes, QueryTypes } from 'sequelize/types';
 import { v4 as uuid } from 'uuid';
 const Sequelize = require('sequelize')
 
@@ -59,6 +61,8 @@ class taskRepository implements IRepo<Task>  {
         try{
             const [results, metadata] = await dbConnection.query('SELECT * FROM tasks WHERE id = ?',{
                 replacements: [new_id]
+               // type: QueryTypes.SELECT,
+               // type: DataTypes.UUID
             })
             return results
         } catch(err){
@@ -77,18 +81,13 @@ class taskRepository implements IRepo<Task>  {
         }
     }
 
-    //wasnt able to use '?' so used if/else cond to identify order by filter
+    //cant use ? as the replacement value adds quotes which cause order by to ignore specified val
     async sortBy(val) {
-        if (val == 'title'){
-            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks ORDER BY title ASC')
+        try{
+            const sortQuery = 'SELECT * FROM tasks ORDER BY ' + val + ' ASC'
+            const [results, metadata] = await dbConnection.query(sortQuery)
             return results
-        }else if (val == 'createdAt'){
-            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks ORDER BY createdAt ASC')
-            return results
-        }else if (val == 'dueDate'){
-            const [results, metadata] = await dbConnection.query('SELECT * FROM tasks ORDER BY dueDate ASC')
-            return results
-        }else{
+        }catch(err){
             return null
         }
     }
