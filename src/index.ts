@@ -1,5 +1,5 @@
 import { Server, Request, ResponseToolkit } from "@hapi/hapi";
-import { routes } from "../routes/routes"
+import { routes } from "./routes/routes"
 
 const init = async () => {
     const server: Server = new Server({
