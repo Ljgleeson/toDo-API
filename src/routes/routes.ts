@@ -1,5 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { task_Repo, Task } from "../repo/iRepository"
+import { Request, ResponseToolkit } from "@hapi/hapi"
 
 export const routes = [
     {  
@@ -20,8 +21,8 @@ export const routes = [
     {
         method: 'GET',
         path: '/tasks',
-        handler: (request, h) => {
-            return task_Repo.getAll()
+        handler: async (request, h) => {
+            return await task_Repo.getAll()
         }
     },
     {
