@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid';
+const taskModelLink = require('../models/sqlModels');
 
-//Access dbs instances without request object
-const instances = require('hapi-sequelizejs').instances;
 
 //define Task data values and types
 export interface Task {
@@ -28,73 +27,107 @@ interface IRepo<Task>{
 class taskRepository implements IRepo<Task>  {
     
     async create(T: Task){
-        const [results, metadata] = await instances.dbs.todoDB.sequelize.query(
-            'INSERT INTO tasks VALUES ( ?, ?, ?, ?, ?)', {
-                replacements: [T.id, T.createdAt, T.title, T.dueDate, T.completed]
-            } )
-        return results
+        try {
+            const taskModel = taskModelLink.taskModel();
+            const createTask = await taskModel.create({              
+                id: T.id,
+                createdAt: T.createdAt,
+                title: T.title,
+                dueDate: T.dueDate,
+                completed: T.completed
+            });
+            return createTask
+        } catch (err) {
+            return null
+        }
     }
 
-    async getAll(){
-        try{
-            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('SELECT * FROM tasks')
-            return results
-        } catch(err){
+    async getAll(){        
+        try {
+            const taskModel = taskModelLink.taskModel();
+            const getAllTasks = await taskModel.findAll();
+            return getAllTasks
+        } catch (err) {
             return null
         }
     }
  
     async getId(new_id){
-        try{
-            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('SELECT * FROM tasks WHERE id = ?',{
-                replacements: [new_id]
-            })
-            return results
-        } catch(err){
+        try {
+            const taskModel = taskModelLink.taskModel();
+            const getATasks = await taskModel.findAll({
+                where: {
+                    id: new_id
+                }
+            });
+            return getATasks
+        } catch (err) { 
             return null
         }
     }
 
     async getCompleted(val) {
-        try{
-            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('SELECT * FROM tasks WHERE completed = ?',{
-                replacements: [val]
-            })
-            return results
-        } catch(err){
+        if (val == 0 || val == 1) {
+            const taskModel = taskModelLink.taskModel();
+            const getCompletedTasks = await taskModel.findAll({
+                where: {
+                    completed: val
+                }
+            });
+            return getCompletedTasks
+        } else {
             return null
         }
     }
 
-    //cant use ? as the replacement value adds quotes which cause order by to ignore specified val
     async sortBy(val) {
-        try{
-            const sortQuery = 'SELECT * FROM tasks ORDER BY ' + val + ' ASC'
-            const [results, metadata] = await instances.dbs.todoDB.sequelize.query(sortQuery)
-            return results
-        }catch(err){
+        try {
+            const taskModel = taskModelLink.taskModel();
+            const getSortedTasks = await taskModel.findAll({
+                order: [
+                    [val, 'ASC']
+                ]
+            });
+            return getSortedTasks
+        } catch (err) {
             return null
         }
     }
 
     async updateById(new_id, updated) {
-        try{
-            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('UPDATE tasks SET title = ?, dueDate = ?, completed = ? WHERE id = ?',{
-                replacements: [updated.title, updated.dueDate, updated.completed, new_id]
+        try {
+            const taskModel = taskModelLink.taskModel();
+            await taskModel.update({
+                title: updated.title,
+                dueDate: updated.dueDate,
+                completed: updated.completed },
+                {
+                where: {
+                    id: new_id
+                }
+            });
+            //need to return the task that has been updated
+            const updatedTask = await taskModel.findAll({
+                where: {
+                    id: new_id
+                }
             })
-            return results
-        } catch(err){
+            return updatedTask
+        } catch (err) {
             return null
         }
     }
 
     async removeById(new_id) {
-        try{
-            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('DELETE FROM tasks WHERE id = ?',{
-                replacements: [new_id]
-            })
-            return results
-        } catch(err){
+        try {
+            const taskModel = taskModelLink.taskModel();
+            const deleteTasks = await taskModel.destroy({
+                where: {
+                    id: new_id
+                }
+            });
+            return deleteTasks
+        } catch (err) {
             return null
         }
     }

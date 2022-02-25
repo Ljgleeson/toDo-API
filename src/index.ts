@@ -1,9 +1,7 @@
-import { Server, Request, ResponseToolkit, server } from "@hapi/hapi";
 import { routes } from "./routes/routes"
 const Sequelize = require('sequelize')
-
-
 const Hapi = require('@hapi/hapi')
+
 
 const init = async () => {
 
@@ -19,11 +17,13 @@ const init = async () => {
             options: [
                 {
                     name: 'todoDB',
+                    models: [__dirname + '/models/sqlModels' ],
                     sequelize: new Sequelize('mysql', 'root', 'supersecretpass', {
                         host: 'localhost',
                         port: 3306,
                         dialect: 'mysql'
                     }),
+                    sync: true
                 }
             ],
         },
