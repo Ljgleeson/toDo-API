@@ -26,8 +26,5 @@ module.exports.taskModel = function () {
         tableName: 'tasks',
         timestamps: false
     });
-
-    instances.dbs.todoDB.sequelize.sync()
-
     return Tasks
 }

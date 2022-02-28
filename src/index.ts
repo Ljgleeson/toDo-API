@@ -2,7 +2,6 @@ import { routes } from "./routes/routes"
 const Sequelize = require('sequelize')
 const Hapi = require('@hapi/hapi')
 
-
 const init = async () => {
 
     const server = Hapi.server({
@@ -23,7 +22,6 @@ const init = async () => {
                         port: 3306,
                         dialect: 'mysql'
                     }),
-                    sync: true
                 }
             ],
         },

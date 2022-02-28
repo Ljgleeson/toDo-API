@@ -1,6 +1,4 @@
-import { DataTypes } from 'sequelize/types';
 import { v4 as uuid } from 'uuid';
-
 
 export const setTasks = [
     {
@@ -25,20 +23,3 @@ export const setTasks = [
         completed: false
      }
 ]
-
-
-
-
-
-
-/*
-function DB(sequelize, models) {
-    this.sequelize = sequelize
-    this.models = models
-}
-server.plugins['hapi-sequelizejs'][opts.name] = new DB(opts.sequelize, models);
-*/
-
-
-
-

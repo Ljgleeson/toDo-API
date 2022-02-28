@@ -1,7 +1,6 @@
 import { v4 as uuid } from 'uuid';
 const taskModelLink = require('../models/sqlModels');
 
-
 //define Task data values and types
 export interface Task {
     id: uuid;
@@ -14,10 +13,8 @@ export interface Task {
 //generic repository interface
 interface IRepo<Task>{
     create(T: Task)
-    getAll()
+    getAll(completion: string, sortBy: string, orderBy: string)
     getId(id: uuid)
-    getCompleted(val: string)
-    sortBy(val: string, sort: string)
     updateById(id: string, updated: Task)
     removeById(id: string)
 }
@@ -38,10 +35,30 @@ class taskRepository implements IRepo<Task>  {
         return createTask
     }
 
-    async getAll(){        
+    //can get every task, completed/incomplete tasks only, and can sort task by createdAt,dueDate,and title while also ordering in ASC or DESC
+    async getAll(completion, sortBy = 'createdAt', orderBy = 'ASC') {        
         const taskModel = taskModelLink.taskModel();
-        const getAllTasks = await taskModel.findAll();
-        return getAllTasks
+        var getTasks
+        //if completion status defined
+        if(completion != undefined || completion != null) {
+            getTasks = await taskModel.findAll({
+                where: {
+                    completed: completion
+                },
+                order: [
+                    [sortBy, orderBy]
+                ]
+            });
+        } 
+        //if either no inputs or combination of sortBy and orderBy
+        else {
+            getTasks = await taskModel.findAll({
+                order: [
+                    [sortBy, orderBy]
+                ]
+            });
+        }
+        return getTasks
     }
  
     async getId(new_id){
@@ -52,38 +69,6 @@ class taskRepository implements IRepo<Task>  {
             }
         });
         return getATasks
-    }
-
-    async getCompleted(val) {
-        if (val == 0 || val == 1) {
-            const taskModel = taskModelLink.taskModel();
-            const getCompletedTasks = await taskModel.findAll({
-                where: {
-                    completed: val
-                }
-            });
-            return getCompletedTasks
-        } else {
-            return null
-        }
-    }
-
-    //sorts by title, duedate, or createdAt and can be sorted in ASC or DESC
-    //ex: dueDated = sort by dueDate in desc order. titleA = title in ascending 
-    async sortBy(val) {
-        const sortVal = val.charAt(val.length-1)
-        var new_val = val.slice(0, val.length - 1)
-        var sort = 'ASC'
-        if (sortVal == 'd'){
-            sort = 'DESC'
-        }
-        const taskModel = taskModelLink.taskModel();
-        const getSortedTasks = await taskModel.findAll({
-            order: [
-                [new_val, sort]
-            ]
-        });
-        return getSortedTasks
     }
 
     async updateById(new_id, updated) {
@@ -97,7 +82,6 @@ class taskRepository implements IRepo<Task>  {
                 id: new_id
             }
         });
-        //need to return the task that has been updated
         const updatedTask = await taskModel.findAll({
             where: {
                 id: new_id
@@ -108,12 +92,13 @@ class taskRepository implements IRepo<Task>  {
 
     async removeById(new_id) {
         const taskModel = taskModelLink.taskModel();
-        const deleteTasks = await taskModel.destroy({
+        await taskModel.destroy({
             where: {
                 id: new_id
             }
         });
-        return deleteTasks
+        const getAllTasks = await taskModel.findAll();
+        return getAllTasks
     }
 }
 
