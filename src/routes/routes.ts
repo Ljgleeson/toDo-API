@@ -6,11 +6,9 @@ export const routes = [
         method: 'POST',
         path: '/tasks',
         handler: (request, h) => {
-
             var payload = request.payload
             var id = uuid()
             var createdAt = new Date()   
-
             const task: Task = {
                 id, createdAt, ...payload as Task
             }
@@ -40,7 +38,7 @@ export const routes = [
     },
     {
         method: 'GET',
-        path: '/tasks/sortBy{val?}',
+        path: '/tasks/sortBy{val}',
         handler: (request, h) => {
             return task_Repo.sortBy(request.params.val) 
         }

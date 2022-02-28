@@ -17,7 +17,7 @@ interface IRepo<Task>{
     getAll()
     getId(id: uuid)
     getCompleted(val: string)
-    sortBy(val: string)
+    sortBy(val: string, sort: string)
     updateById(id: string, updated: Task)
     removeById(id: string)
 }
@@ -27,43 +27,31 @@ interface IRepo<Task>{
 class taskRepository implements IRepo<Task>  {
     
     async create(T: Task){
-        try {
-            const taskModel = taskModelLink.taskModel();
-            const createTask = await taskModel.create({              
-                id: T.id,
-                createdAt: T.createdAt,
-                title: T.title,
-                dueDate: T.dueDate,
-                completed: T.completed
-            });
-            return createTask
-        } catch (err) {
-            return null
-        }
+        const taskModel = taskModelLink.taskModel();
+        const createTask = await taskModel.create({              
+            id: T.id,
+            createdAt: T.createdAt,
+            title: T.title,
+            dueDate: T.dueDate,
+            completed: T.completed
+        });
+        return createTask
     }
 
     async getAll(){        
-        try {
-            const taskModel = taskModelLink.taskModel();
-            const getAllTasks = await taskModel.findAll();
-            return getAllTasks
-        } catch (err) {
-            return null
-        }
+        const taskModel = taskModelLink.taskModel();
+        const getAllTasks = await taskModel.findAll();
+        return getAllTasks
     }
  
     async getId(new_id){
-        try {
-            const taskModel = taskModelLink.taskModel();
-            const getATasks = await taskModel.findAll({
-                where: {
-                    id: new_id
-                }
-            });
-            return getATasks
-        } catch (err) { 
-            return null
-        }
+        const taskModel = taskModelLink.taskModel();
+        const getATasks = await taskModel.findAll({
+            where: {
+                id: new_id
+            }
+        });
+        return getATasks
     }
 
     async getCompleted(val) {
@@ -80,56 +68,52 @@ class taskRepository implements IRepo<Task>  {
         }
     }
 
+    //sorts by title, duedate, or createdAt and can be sorted in ASC or DESC
+    //ex: dueDated = sort by dueDate in desc order. titleA = title in ascending 
     async sortBy(val) {
-        try {
-            const taskModel = taskModelLink.taskModel();
-            const getSortedTasks = await taskModel.findAll({
-                order: [
-                    [val, 'ASC']
-                ]
-            });
-            return getSortedTasks
-        } catch (err) {
-            return null
+        const sortVal = val.charAt(val.length-1)
+        var new_val = val.slice(0, val.length - 1)
+        var sort = 'ASC'
+        if (sortVal == 'd'){
+            sort = 'DESC'
         }
+        const taskModel = taskModelLink.taskModel();
+        const getSortedTasks = await taskModel.findAll({
+            order: [
+                [new_val, sort]
+            ]
+        });
+        return getSortedTasks
     }
 
     async updateById(new_id, updated) {
-        try {
-            const taskModel = taskModelLink.taskModel();
-            await taskModel.update({
-                title: updated.title,
-                dueDate: updated.dueDate,
-                completed: updated.completed },
-                {
-                where: {
-                    id: new_id
-                }
-            });
-            //need to return the task that has been updated
-            const updatedTask = await taskModel.findAll({
-                where: {
-                    id: new_id
-                }
-            })
-            return updatedTask
-        } catch (err) {
-            return null
-        }
+        const taskModel = taskModelLink.taskModel();
+        await taskModel.update({
+            title: updated.title,
+            dueDate: updated.dueDate,
+            completed: updated.completed },
+            {
+            where: {
+                id: new_id
+            }
+        });
+        //need to return the task that has been updated
+        const updatedTask = await taskModel.findAll({
+            where: {
+                id: new_id
+            }
+        })
+        return updatedTask
     }
 
     async removeById(new_id) {
-        try {
-            const taskModel = taskModelLink.taskModel();
-            const deleteTasks = await taskModel.destroy({
-                where: {
-                    id: new_id
-                }
-            });
-            return deleteTasks
-        } catch (err) {
-            return null
-        }
+        const taskModel = taskModelLink.taskModel();
+        const deleteTasks = await taskModel.destroy({
+            where: {
+                id: new_id
+            }
+        });
+        return deleteTasks
     }
 }
 
