@@ -1,17 +1,14 @@
 import { v4 as uuid } from 'uuid';
-import { task_Repo, Task } from "../repo/iRepository"
-import { Request, ResponseToolkit } from "@hapi/hapi"
+import { task_Repo, Task } from "../repo/modelRepository"
 
 export const routes = [
     {  
         method: 'POST',
         path: '/tasks',
         handler: (request, h) => {
-
             var payload = request.payload
             var id = uuid()
             var createdAt = new Date()   
-
             const task: Task = {
                 id, createdAt, ...payload as Task
             }
@@ -21,8 +18,14 @@ export const routes = [
     {
         method: 'GET',
         path: '/tasks',
-        handler: async (request, h) => {
-            return await task_Repo.getAll()
+        handler: async (request: {
+            query: {
+                completed:string,
+                sortBy: string,
+                orderBy: string
+            }
+        }, h) => {
+            return await task_Repo.getAll(request.query.completed, request.query.sortBy, request.query.orderBy)
         }
     },
     {
@@ -30,20 +33,6 @@ export const routes = [
         path: '/tasks{id}',
         handler: (request, h) => {
             return task_Repo.getId(request.params.id)
-        }
-    },
-    {
-        method: 'GET',
-        path: '/tasks/completed{val}',
-        handler: (request, h) => {
-            return task_Repo.getCompleted(request.params.val) 
-        }
-    },
-    {
-        method: 'GET',
-        path: '/tasks/sortBy{val?}',
-        handler: (request, h) => {
-            return task_Repo.sortBy(request.params.val) 
         }
     },
     {
