@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 const instances = require('hapi-sequelizejs').instances;
 
-module.exports.taskModel = function () {
+module.exports.taskModel = function() {
     const Tasks = instances.dbs.todoDB.sequelize.define('tasks', {
         id: {
             type: DataTypes.STRING,

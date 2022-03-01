@@ -1,5 +1,7 @@
 import { v4 as uuid } from 'uuid';
-const taskModelLink = require('../models/sqlModels');
+
+//Access dbs instances without request object
+const instances = require('hapi-sequelizejs').instances;
 
 //define Task data values and types
 export interface Task {
@@ -13,8 +15,10 @@ export interface Task {
 //generic repository interface
 interface IRepo<Task>{
     create(T: Task)
-    getAll(completion: string, sortBy: string, orderBy: string)
+    getAll()
     getId(id: uuid)
+    getCompleted(val: string)
+    sortBy(val: string)
     updateById(id: string, updated: Task)
     removeById(id: string)
 }
@@ -24,84 +28,77 @@ interface IRepo<Task>{
 class taskRepository implements IRepo<Task>  {
     
     async create(T: Task){
-        const taskModel = taskModelLink.taskModel();
-        const createTask = await taskModel.create({              
-            id: T.id,
-            createdAt: T.createdAt,
-            title: T.title,
-            dueDate: T.dueDate,
-            completed: T.completed
-        });
-        return createTask
+        const [results, metadata] = await instances.dbs.todoDB.sequelize.query(
+            'INSERT INTO tasks VALUES ( ?, ?, ?, ?, ?)', {
+                replacements: [T.id, T.createdAt, T.title, T.dueDate, T.completed]
+            } )
+        return results
     }
 
-    //can get every task, completed/incomplete tasks only, and can sort task by createdAt,dueDate,and title while also ordering in ASC or DESC
-    async getAll(completion, sortBy = 'createdAt', orderBy = 'ASC') {        
-        const taskModel = taskModelLink.taskModel();
-        var getTasks
-        //if completion status defined
-        if(completion != undefined || completion != null) {
-            getTasks = await taskModel.findAll({
-                where: {
-                    completed: completion
-                },
-                order: [
-                    [sortBy, orderBy]
-                ]
-            });
-        } 
-        //if either no inputs or combination of sortBy and orderBy
-        else {
-            getTasks = await taskModel.findAll({
-                order: [
-                    [sortBy, orderBy]
-                ]
-            });
+    async getAll(){
+        try{
+            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('SELECT * FROM tasks')
+            return results
+        } catch(err){
+            return null
         }
-        return getTasks
     }
  
     async getId(new_id){
-        const taskModel = taskModelLink.taskModel();
-        const getATasks = await taskModel.findAll({
-            where: {
-                id: new_id
-            }
-        });
-        return getATasks
+        try{
+            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('SELECT * FROM tasks WHERE id = ?',{
+                replacements: [new_id]
+            })
+            return results
+        } catch(err){
+            return null
+        }
+    }
+
+    async getCompleted(val) {
+        try{
+            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('SELECT * FROM tasks WHERE completed = ?',{
+                replacements: [val]
+            })
+            return results
+        } catch(err){
+            return null
+        }
+    }
+
+    //cant use ? as the replacement value adds quotes which cause order by to ignore specified val
+    async sortBy(val) {
+        try{
+            const sortQuery = 'SELECT * FROM tasks ORDER BY ' + val + ' ASC'
+            const [results, metadata] = await instances.dbs.todoDB.sequelize.query(sortQuery)
+            return results
+        }catch(err){
+            return null
+        }
     }
 
     async updateById(new_id, updated) {
-        const taskModel = taskModelLink.taskModel();
-        await taskModel.update({
-            title: updated.title,
-            dueDate: updated.dueDate,
-            completed: updated.completed },
-            {
-            where: {
-                id: new_id
-            }
-        });
-        const updatedTask = await taskModel.findAll({
-            where: {
-                id: new_id
-            }
-        })
-        return updatedTask
+        try{
+            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('UPDATE tasks SET title = ?, dueDate = ?, completed = ? WHERE id = ?',{
+                replacements: [updated.title, updated.dueDate, updated.completed, new_id]
+            })
+            return results
+        } catch(err){
+            return null
+        }
     }
 
     async removeById(new_id) {
-        const taskModel = taskModelLink.taskModel();
-        await taskModel.destroy({
-            where: {
-                id: new_id
-            }
-        });
-        const getAllTasks = await taskModel.findAll();
-        return getAllTasks
+        try{
+            const [results, metadata] = await instances.dbs.todoDB.sequelize.query('DELETE FROM tasks WHERE id = ?',{
+                replacements: [new_id]
+            })
+            return results
+        } catch(err){
+            return null
+        }
     }
 }
 
 //export object to routes so can be used globally
 export const task_Repo = new taskRepository()
-
